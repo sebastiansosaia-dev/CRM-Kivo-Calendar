@@ -1,0 +1,131 @@
+:root {
+  --color-primary: #D97745;
+  --color-sidebar: #2C2420;
+  --color-background: #F0EDE6;
+  --color-surface: #FFFFFF;
+  --color-text: #111111;
+  --color-text-muted: #666666;
+  --color-border: #E8E2D9;
+  --color-pending: #F5A623;
+  --color-confirmed: #4CAF50;
+  --color-cancelled: #E53935;
+
+  --shadow: 0 2px 12px rgba(0,0,0,0.06);
+  --shadow-hover: 0 4px 20px rgba(0,0,0,0.08);
+  --radius: 12px;
+  --spacing: 24px;
+
+  --sidebar-width: 180px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--color-text);
+  background-color: var(--color-background);
+  min-height: 100vh;
+  margin: 0;
+}
+
+/* Skeleton Loaders */
+.skeleton-shimmer {
+  background: #E8E2D9;
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0,
+    rgba(255, 255, 255, 0.4) 20%,
+    rgba(255, 255, 255, 0) 40%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-repeat: no-repeat;
+  background-size: 200vw 100%;
+  animation: shimmer 1.5s infinite linear;
+  border-radius: 4px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200vw 0;
+  }
+  100% {
+    background-position: 200vw 0;
+  }
+}
+
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'DM Serif Display', serif;
+  font-weight: 400;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* SaaS Buttons */
+.btn {
+  padding: 0 16px;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.btn:hover:not(:disabled) {
+  opacity: 1;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background-color: #D97745;
+  color: #FFFFFF;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #C2622A;
+}
+
+.btn-primary.confirmed {
+  background-color: #2d7a4f;
+  color: #FFFFFF;
+  border: transparent;
+}
+
+.btn-danger {
+  background-color: transparent;
+  color: #1A1411;
+  border: 1px solid #E8E2D9;
+}
+
+.btn-danger.denied {
+  opacity: 0.8;
+  cursor: not-allowed;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background-color: #F5F0EA;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
