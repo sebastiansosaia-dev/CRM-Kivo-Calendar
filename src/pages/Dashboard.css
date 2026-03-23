@@ -1,0 +1,347 @@
+.dashboard {
+  padding: 32px 32px 0 32px;
+  height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-shrink: 0;
+}
+
+.page-title {
+  margin: 0;
+  font-size: 28px;
+  color: var(--color-text);
+}
+
+.calendar-view-toggle {
+  display: flex;
+  background: #E8E2D9;
+  border-radius: 8px;
+  padding: 4px;
+}
+
+.toggle-btn {
+  padding: 6px 16px;
+  border-radius: 6px;
+  font-weight: 500;
+  color: #7C6E65;
+  transition: all 0.2s ease;
+}
+
+.toggle-btn.active {
+  background: #FFFFFF;
+  color: var(--color-text);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 24px;
+  flex: 1;
+  min-height: 0;
+  padding-bottom: 32px;
+}
+
+.calendar-container {
+  background: #FFFFFF;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+  overflow: hidden;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.calendar-wrapper {
+  padding: 24px;
+  height: 100%;
+  box-sizing: border-box;
+  /* Make sure calendar takes full height of wrapper */
+  display: flex;
+  flex-direction: column;
+}
+
+.calendar-wrapper > div {
+  flex: 1;
+}
+
+.calendar-loading {
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+}
+
+/* FullCalendar Overrides */
+.fc {
+  font-family: inherit;
+}
+
+.fc-theme-standard .fc-scrollgrid {
+  border-color: #F1EDE7;
+}
+
+.fc-theme-standard td, .fc-theme-standard th {
+  border-color: #F1EDE7;
+}
+
+.fc-col-header-cell {
+  background-color: #F9F7F4;
+  padding: 12px 0;
+}
+
+.fc-col-header-cell-cushion {
+  color: #7C6E65;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.fc-timegrid-slot {
+  height: 40px !important;
+}
+
+.fc-timegrid-slot-label-cushion {
+  color: #7C6E65;
+  font-size: 12px;
+}
+
+.fc-v-event {
+  border-radius: 6px;
+  border: none;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+  padding: 4px 6px;
+  transition: transform 0.1s;
+  cursor: pointer;
+}
+
+.fc-v-event:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  opacity: 0.95;
+}
+
+.fc-event-main-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.fc-event-time {
+  font-size: 11px;
+  opacity: 0.9;
+  font-weight: 500;
+}
+
+.fc-event-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.fc-event-status-indicator {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.fc-event-status-indicator.pending { background-color: #FFD166; }
+.fc-event-status-indicator.confirmed { background-color: #06D6A0; }
+
+.fc-event-title {
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fc-day-today {
+  background-color: #FFFDF8 !important;
+}
+
+.fc-toolbar-title {
+  font-family: 'DM Serif Display', serif !important;
+  font-size: 20px !important;
+  color: #1A1411;
+  text-transform: capitalize;
+}
+
+.fc-button-primary {
+  background-color: #FFFFFF !important;
+  color: #7C6E65 !important;
+  border: 1px solid #E8E2D9 !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03) !important;
+  text-transform: capitalize;
+  font-family: inherit;
+  font-weight: 500 !important;
+}
+
+.fc-button-primary:not(:disabled):active,
+.fc-button-primary:not(:disabled).fc-button-active {
+  background-color: #F5F0EA !important;
+  color: var(--color-text) !important;
+  border-color: #D3CAB9 !important;
+}
+
+.appointments-sidebar {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.appointments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+  padding-right: 8px;
+  /* Custom scrollbar for sidebar */
+  scrollbar-width: thin;
+  scrollbar-color: #E0DDD6 transparent;
+}
+
+.appointments-list::-webkit-scrollbar {
+  width: 4px;
+}
+.appointments-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+.appointments-list::-webkit-scrollbar-thumb {
+  background-color: #E0DDD6;
+  border-radius: 4px;
+}
+
+.appointment-card {
+  background: #FFFFFF;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  gap: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  transition: transform 0.2s;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.appointment-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  border-color: #E8E2D9;
+}
+
+.appointment-time {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 60px;
+  padding-right: 16px;
+  border-right: 1px solid #F1EDE7;
+}
+
+.appointment-time .time {
+  font-weight: 600;
+  color: var(--color-text);
+  font-size: 14px;
+}
+
+.appointment-time .date {
+  color: #7C6E65;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.appointment-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.appointment-info strong {
+  color: #1A1411;
+  font-size: 14px;
+  margin-bottom: 2px;
+}
+
+.appointment-info .service {
+  color: #7C6E65;
+  font-size: 13px;
+}
+
+@media (max-width: 1100px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard {
+    padding: 24px 16px 0 16px;
+  }
+  
+  .dashboard-grid {
+    gap: 16px;
+    padding-bottom: 24px;
+  }
+  
+  .calendar-wrapper {
+    padding: 12px;
+    height: 60vh;
+  }
+  
+  /* Mobile CSS overrides for calendar readability */
+  .fc .fc-col-header-cell-cushion {
+    font-size: 12px;
+    padding: 4px 2px;
+  }
+  
+  .fc .fc-event-time {
+    display: none !important;
+  }
+
+  /* Prevent overflow in month view events */
+  .fc-daygrid-event {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: block; /* ensure block layout for text-overflow to work */
+  }
+
+  .fc .fc-event-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .calendar-container {
+    border-radius: 12px;
+  }
+
+  .page-title {
+    font-size: 24px;
+  }
+  
+  .appointments-sidebar h2 {
+    font-size: 20px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .fc-toolbar-title {
+    font-size: 16px !important;
+  }
+  .fc .fc-button {
+    padding: 4px 8px;
+    font-size: 12px;
+  }
+}
