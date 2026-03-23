@@ -243,6 +243,27 @@
   gap: 8px;
 }
 
+@media (max-width: 768px) {
+  .modal-title {
+    font-size: 20px;
+  }
+  .modal-card {
+    width: 94%;
+    padding: 16px 14px;
+  }
+  .modal-body {
+    gap: 12px;
+    padding-bottom: 16px;
+  }
+  .modal-row {
+    font-size: 13px;
+  }
+  .modal-footer {
+    padding-top: 14px;
+    gap: 8px;
+  }
+}
+
 @media (max-width: 480px) {
   .reschedule-actions {
     flex-direction: column-reverse;
@@ -266,6 +287,6 @@
 
   .modal-card {
     width: 95%;
-    padding: 18px 16px;
+    padding: 16px 12px;
   }
 }
