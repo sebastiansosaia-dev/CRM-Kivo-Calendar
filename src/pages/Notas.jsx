@@ -79,68 +79,70 @@ const Notas = () => {
   };
 
   return (
-    <div className="pipeline-page" style={{ height: '100%', paddingBottom: 0 }}>
+    <div className="pipeline-page" style={{ height: '100%', display: 'flex', flexDirection: 'column', paddingBottom: 0, overflow: 'hidden' }}>
       <div className="pipeline-header hide-mobile">
         <h2>Notas del Equipo</h2>
       </div>
       
-      <div className="pipeline-container" style={{ flexGrow: 1, overflowY: 'auto', backgroundColor: '#FFFFFF', borderRadius: '12px', padding: '24px', display: 'flex', flexDirection: 'column' }}>
-        {loading ? (
-           <div className="pipeline-empty">Cargando notas...</div>
-        ) : notas.length === 0 ? (
-           <div className="pipeline-empty">No hay notas en el sistema.</div>
-        ) : (
-          <div style={{ flexGrow: 1, display: 'flex', flexDirection: 'column', gap: '16px', overflowY: 'auto', paddingRight: '12px' }}>
-            {notas.map((n) => {
-              const isMine = n.usuario_email === user?.email;
-              return (
-                <div key={n.id} style={{ alignSelf: isMine ? 'flex-end' : 'flex-start', maxWidth: '75%' }}>
-                   <div style={{ fontSize: '12px', fontWeight: '600', color: isMine ? '#C2622A' : '#7C6E65', marginBottom: '6px', paddingLeft: isMine ? 0 : '4px', paddingRight: isMine ? '4px' : 0, textAlign: isMine ? 'right' : 'left', letterSpacing: '0.3px' }}>
-                     {isMine ? 'Tú' : getDisplayName(n.usuario_email)}
-                   </div>
-                   <div style={{ 
-                      padding: '12px 16px', 
-                      borderRadius: '16px', 
-                      backgroundColor: isMine ? '#D97745' : '#F5F0EA',
-                      color: isMine ? '#FFFFFF' : '#1A1411',
-                      borderBottomRightRadius: isMine ? '4px' : '16px',
-                      borderBottomLeftRadius: !isMine ? '4px' : '16px',
-                      boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
-                   }}>
-                     <p style={{ margin: 0, fontSize: '14px', lineHeight: '1.5' }}>{n.mensaje}</p>
-                   </div>
-                   <div style={{ fontSize: '11px', color: '#A09891', marginTop: '4px', textAlign: isMine ? 'right' : 'left' }}>
-                     {formatTime(n.created_at)}
-                   </div>
-                </div>
-              );
-            })}
-            <div ref={messagesEndRef} />
-          </div>
-        )}
-      </div>
+      <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', padding: '0 12px 0 12px' }}>
+        <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', WebkitOverflowScrolling: 'touch', backgroundColor: '#FFFFFF', borderRadius: '12px', padding: '16px', display: 'flex', flexDirection: 'column' }}>
+          {loading ? (
+             <div className="pipeline-empty">Cargando notas...</div>
+          ) : notas.length === 0 ? (
+             <div className="pipeline-empty">No hay notas en el sistema.</div>
+          ) : (
+            <div style={{ flexGrow: 1, display: 'flex', flexDirection: 'column', gap: '12px', overflowY: 'auto' }}>
+              {notas.map((n) => {
+                const isMine = n.usuario_email === user?.email;
+                return (
+                  <div key={n.id} style={{ alignSelf: isMine ? 'flex-end' : 'flex-start', maxWidth: '80%' }}>
+                     <div style={{ fontSize: '11px', fontWeight: '600', color: isMine ? '#C2622A' : '#7C6E65', marginBottom: '4px', paddingLeft: isMine ? 0 : '4px', paddingRight: isMine ? '4px' : 0, textAlign: isMine ? 'right' : 'left', letterSpacing: '0.3px' }}>
+                       {isMine ? 'Tú' : getDisplayName(n.usuario_email)}
+                     </div>
+                     <div style={{ 
+                        padding: '10px 14px', 
+                        borderRadius: '14px', 
+                        backgroundColor: isMine ? '#D97745' : '#F5F0EA',
+                        color: isMine ? '#FFFFFF' : '#1A1411',
+                        borderBottomRightRadius: isMine ? '4px' : '14px',
+                        borderBottomLeftRadius: !isMine ? '4px' : '14px',
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+                     }}>
+                       <p style={{ margin: 0, fontSize: '13px', lineHeight: '1.5' }}>{n.mensaje}</p>
+                     </div>
+                     <div style={{ fontSize: '10px', color: '#A09891', marginTop: '3px', textAlign: isMine ? 'right' : 'left' }}>
+                       {formatTime(n.created_at)}
+                     </div>
+                  </div>
+                );
+              })}
+              <div ref={messagesEndRef} />
+            </div>
+          )}
+        </div>
 
-      <div style={{ padding: '24px 0', marginTop: 'auto' }}>
-        <form onSubmit={handleSend} style={{ display: 'flex', gap: '12px' }}>
-          <input 
-            type="text" 
-            value={mensaje}
-            onChange={(e) => setMensaje(e.target.value)}
-            placeholder="Escribe una nota para el equipo..."
-            style={{ 
-              flexGrow: 1, 
-              padding: '12px 16px', 
-              borderRadius: '8px', 
-              border: '1px solid #E8E2D9',
-              outline: 'none',
-              fontFamily: '"DM Sans", sans-serif',
-              fontSize: '14px'
-            }}
-          />
-          <button type="submit" disabled={!mensaje.trim() || !user} className="btn btn-primary" style={{ padding: '0 24px', borderRadius: '8px' }}>
-            Enviar
-          </button>
-        </form>
+        <div style={{ padding: '12px 0', flexShrink: 0 }}>
+          <form onSubmit={handleSend} style={{ display: 'flex', gap: '8px' }}>
+            <input 
+              type="text" 
+              value={mensaje}
+              onChange={(e) => setMensaje(e.target.value)}
+              placeholder="Escribe una nota para el equipo..."
+              style={{ 
+                flexGrow: 1, 
+                padding: '10px 14px', 
+                borderRadius: '8px', 
+                border: '1px solid #E8E2D9',
+                outline: 'none',
+                fontFamily: '"DM Sans", sans-serif',
+                fontSize: '13px'
+              }}
+            />
+            <button type="submit" disabled={!mensaje.trim() || !user} className="btn btn-primary" style={{ padding: '0 16px', borderRadius: '8px', fontSize: '13px' }}>
+              Enviar
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );

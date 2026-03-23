@@ -20,13 +20,26 @@
   .dashboard-page {
     flex-direction: column;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    height: auto;
+    min-height: 100%;
   }
   .upcoming-events-sidebar {
     width: 100%;
   }
+  .upcoming-title {
+    font-size: 22px !important;
+  }
+  .upcoming-card {
+    padding: 12px 14px !important;
+    gap: 8px !important;
+  }
   .calendar-container {
-    min-height: 400px !important;
-    height: 100% !important;
+    min-height: 420px !important;
+    height: auto !important;
+    flex-shrink: 0 !important;
+    overflow: visible !important;
+    padding: 12px !important;
   }
   
   /* FullCalendar Mobile Adjustments */

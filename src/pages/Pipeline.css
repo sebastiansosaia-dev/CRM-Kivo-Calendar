@@ -221,7 +221,37 @@
 
 @media (max-width: 768px) {
   .pipeline-header {
-    padding-top: 24px;
-    padding-bottom: 0px;
+    padding: 16px 16px 0 16px;
+  }
+  .pipeline-header h2 {
+    font-size: 22px;
+  }
+  .pipeline-container {
+    padding: 12px;
+    gap: 12px;
+  }
+  .kanban-card {
+    padding: 12px 14px;
+    gap: 10px;
+  }
+  .client-name {
+    font-size: 13px;
+  }
+  .detail-label {
+    font-size: 11px;
+    min-width: 55px;
+  }
+  .card-details {
+    font-size: 13px;
+    gap: 8px;
+  }
+  .card-actions {
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .btn {
+    font-size: 13px;
+    min-height: 34px;
+    padding: 0 12px;
   }
 }
