@@ -119,6 +119,7 @@
   position: relative;
 }
 
+/* --- MOBILE RESPONSIVE SAAS --- */
 .mobile-navbar {
   display: none;
 }
@@ -200,13 +201,18 @@
   }
   
   .sidebar:hover {
-    width: 240px;
+    width: 240px; /* Disabled expanding hover on mobile */
   }
 
   .sidebar-header {
     justify-content: flex-start;
     padding: 24px 0 32px 10px;
     height: auto;
+  }
+
+  .sidebar-title {
+    font-size: 24px;
+    letter-spacing: 0.5px;
   }
 
   .nav-label {

@@ -1,347 +1,385 @@
-.dashboard {
-  padding: 32px 32px 0 32px;
+.dashboard-page {
+  width: 100%;
   height: 100%;
-  box-sizing: border-box;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  padding: var(--spacing);
+  gap: var(--spacing);
+  overflow: hidden;
 }
 
-.calendar-header {
+.upcoming-events-sidebar {
+  width: 280px;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
+  flex-direction: column;
+  gap: 16px;
   flex-shrink: 0;
 }
 
-.page-title {
-  margin: 0;
+@media (max-width: 768px) {
+  .dashboard-page {
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .upcoming-events-sidebar {
+    width: 100%;
+  }
+  .calendar-container {
+    min-height: 400px !important;
+    height: 100% !important;
+  }
+  
+  /* FullCalendar Mobile Adjustments */
+  .fc .fc-header-toolbar {
+    flex-direction: column !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    gap: 8px !important;
+  }
+  .fc .fc-toolbar-chunk:nth-child(1) {
+    order: 2;
+    display: flex;
+    justify-content: center !important;
+    width: 100%;
+  }
+  .fc .fc-toolbar-chunk:nth-child(2) {
+    order: 1;
+    display: flex;
+    justify-content: center !important;
+    align-items: center;
+    width: 100%;
+    position: static !important;
+    transform: none !important;
+  }
+  .fc .fc-toolbar-chunk:nth-child(3) {
+    order: 3;
+    width: 100%;
+    display: flex;
+    justify-content: center !important;
+    margin-top: 4px;
+  }
+  .fc .fc-toolbar-title {
+    font-size: 13px !important;
+  }
+
+  /* Week view column headers: reduce day name/number size on narrow screens */
+  .fc .fc-col-header-cell-cushion {
+    font-size: 10px !important;
+    padding: 2px 2px !important;
+    white-space: nowrap;
+  }
+  
+  /* Mobile footer buttons */
+  .fc-footer-toolbar .fc-button-group {
+    gap: 8px !important;
+  }
+  .fc-footer-toolbar .fc-button-group > .fc-button {
+    padding: 8px 16px !important;
+    font-size: 13px !important;
+  }
+
+  /* timeGridDay readability on mobile */
+  .fc .fc-timegrid-slot {
+    height: 48px !important;
+  }
+  .fc .fc-timegrid-slot-label {
+    font-size: 11px !important;
+    padding: 2px 4px !important;
+  }
+  .fc .fc-event-title {
+    font-size: 11px !important;
+    white-space: normal !important;
+    overflow: visible !important;
+  }
+  .fc .fc-event {
+    padding: 2px 4px !important;
+    min-height: 28px !important;
+  }
+  .fc .fc-timegrid-col-events {
+    margin: 0 1px !important;
+  }
+
+  /* Week/Day Event Cards: Prevent text from breaking vertically letter by letter */
+  .fc .fc-v-event .fc-event-main {
+    overflow: hidden !important;
+  }
+  .fc .fc-v-event .fc-event-main-frame {
+    overflow: hidden !important;
+    white-space: nowrap !important;
+    text-overflow: ellipsis !important;
+    display: block !important;
+  }
+  .fc .fc-event-title-container {
+    overflow: hidden !important;
+    white-space: nowrap !important;
+    text-overflow: ellipsis !important;
+  }
+  .fc .fc-event-time {
+    display: none !important; /* Hide the auto-generated time inside the card to save horizontal space on mobile */
+  }
+
+  /* Month view: prevent event cards from overflowing columns */
+  .fc .fc-daygrid-event {
+    max-width: 100% !important;
+    overflow: hidden !important;
+    white-space: nowrap !important;
+    text-overflow: ellipsis !important;
+  }
+  .fc .fc-daygrid-event-harness {
+    overflow: hidden !important;
+  }
+  .fc .fc-event-title {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+}
+
+.upcoming-title {
+  font-family: 'DM Serif Display', serif;
   font-size: 28px;
   color: var(--color-text);
+  margin: 0 0 16px 0;
 }
 
-.calendar-view-toggle {
+.upcoming-list {
   display: flex;
-  background: #E8E2D9;
-  border-radius: 8px;
-  padding: 4px;
-}
-
-.toggle-btn {
-  padding: 6px 16px;
-  border-radius: 6px;
-  font-weight: 500;
-  color: #7C6E65;
-  transition: all 0.2s ease;
-}
-
-.toggle-btn.active {
-  background: #FFFFFF;
-  color: var(--color-text);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.04);
-}
-
-.dashboard-grid {
-  display: grid;
-  grid-template-columns: 1fr 340px;
+  flex-direction: column;
   gap: 24px;
-  flex: 1;
-  min-height: 0;
-  padding-bottom: 32px;
 }
 
-.calendar-container {
-  background: #FFFFFF;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-  overflow: hidden;
-  height: 100%;
+.upcoming-card {
+  background-color: #FFFFFF;
+  border-radius: 14px;
+  padding: 16px 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
   display: flex;
   flex-direction: column;
+  gap: 12px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.calendar-wrapper {
-  padding: 24px;
-  height: 100%;
-  box-sizing: border-box;
-  /* Make sure calendar takes full height of wrapper */
-  display: flex;
-  flex-direction: column;
-}
-
-.calendar-wrapper > div {
-  flex: 1;
-}
-
-.calendar-loading {
-  width: 100%;
-  height: 100%;
-  border-radius: 12px;
-}
-
-/* FullCalendar Overrides */
-.fc {
-  font-family: inherit;
-}
-
-.fc-theme-standard .fc-scrollgrid {
-  border-color: #F1EDE7;
-}
-
-.fc-theme-standard td, .fc-theme-standard th {
-  border-color: #F1EDE7;
-}
-
-.fc-col-header-cell {
-  background-color: #F9F7F4;
-  padding: 12px 0;
-}
-
-.fc-col-header-cell-cushion {
-  color: #7C6E65;
-  font-weight: 600;
-  text-transform: capitalize;
-}
-
-.fc-timegrid-slot {
-  height: 40px !important;
-}
-
-.fc-timegrid-slot-label-cushion {
-  color: #7C6E65;
-  font-size: 12px;
-}
-
-.fc-v-event {
-  border-radius: 6px;
-  border: none;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.06);
-  padding: 4px 6px;
-  transition: transform 0.1s;
+.upcoming-card.click-card {
   cursor: pointer;
 }
 
-.fc-v-event:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  opacity: 0.95;
+.upcoming-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
-.fc-event-main-content {
+.upcoming-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.upcoming-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--color-primary);
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+
+.upcoming-time {
+  font-size: 13px;
+  color: #A09891;
+  font-weight: 500;
+  margin-top: auto;
+}
+
+.upcoming-client {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  margin: 0;
+  color: #1A1411;
+}
+
+.upcoming-reason {
+  font-size: 14px;
+  color: #7C6E65;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.upcoming-empty-state {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #7C6E65;
+  font-size: 14px;
+  padding: 32px 0;
+  font-family: 'DM Sans', sans-serif;
 }
 
-.fc-event-time {
-  font-size: 11px;
-  opacity: 0.9;
-  font-weight: 500;
+.calendar-container {
+  flex-grow: 1;
+  background-color: var(--color-surface);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--shadow);
+  height: 100%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: all 0.25s ease;
 }
 
-.fc-event-title-wrap {
+.loading-state {
   display: flex;
   align-items: center;
-  gap: 4px;
+  justify-content: center;
+  height: 100%;
+  color: var(--color-text-muted);
+  font-size: 16px;
 }
 
-.fc-event-status-indicator {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  flex-shrink: 0;
+/* FullCalendar style overrides */
+.fc {
+  font-family: 'DM Sans', sans-serif !important;
+  color: var(--color-text);
 }
 
-.fc-event-status-indicator.pending { background-color: #FFD166; }
-.fc-event-status-indicator.confirmed { background-color: #06D6A0; }
-
-.fc-event-title {
-  font-size: 12px;
-  font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.fc .fc-header-toolbar {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+  flex-wrap: nowrap !important;
+  margin-bottom: 24px !important;
 }
 
-.fc-day-today {
-  background-color: #FFFDF8 !important;
+/* Fix specific FullCalendar Month view grids enforcing interactive mouse pointers */
+.fc-daygrid-event, .fc-timegrid-event {
+  cursor: pointer !important;
+}
+
+/* Ensure Footer Toolbar has ample clearance */
+.fc-footer-toolbar {
+  margin-top: 32px !important;
+  display: flex !important;
+  justify-content: center !important;
+}
+
+/* Base styling for the buttons container in the footer separating native button-groups */
+.fc-footer-toolbar .fc-toolbar-chunk {
+  display: flex !important;
+  justify-content: center !important;
+}
+
+.fc-footer-toolbar .fc-button-group {
+  display: flex !important;
+  gap: 16px !important;
+  flex-wrap: nowrap !important;
+}
+
+.fc-footer-toolbar .fc-button-group > .fc-button {
+  border-radius: 8px !important;
+  border-width: 1px !important;
+  padding: 10px 24px !important;
+  font-size: 15px !important;
+  line-height: 1.5 !important;
+}
+
+/* Ensure reset for any absolute positioning defaults */
+.fc .fc-header-toolbar * {
+  position: static !important;
+}
+
+.fc .fc-toolbar-chunk {
+  display: flex !important;
+  align-items: center !important;
+}
+
+/* Left side navigation arrows + today */
+.fc .fc-toolbar-chunk:nth-child(1) {
+  gap: 6px !important;
+}
+
+/* Ensure absolute positioning wrapper for FC header */
+.fc .fc-header-toolbar {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  position: relative !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  margin-bottom: 24px !important;
+}
+
+/* FullCalendar Title Chunk Centering Hack */
+.fc .fc-toolbar-chunk:nth-child(2) {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: max-content;
 }
 
 .fc-toolbar-title {
   font-family: 'DM Serif Display', serif !important;
-  font-size: 20px !important;
-  color: #1A1411;
-  text-transform: capitalize;
+  font-weight: 400 !important;
+  font-size: 24px !important;
+  color: var(--color-text);
+  white-space: nowrap !important;
+  text-align: center !important;
+  width: 100% !important;
 }
 
 .fc-button-primary {
-  background-color: #FFFFFF !important;
-  color: #7C6E65 !important;
-  border: 1px solid #E8E2D9 !important;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.03) !important;
+  background-color: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
   text-transform: capitalize;
-  font-family: inherit;
+  border-radius: 8px !important;
   font-weight: 500 !important;
 }
 
-.fc-button-primary:not(:disabled):active,
-.fc-button-primary:not(:disabled).fc-button-active {
-  background-color: #F5F0EA !important;
-  color: var(--color-text) !important;
-  border-color: #D3CAB9 !important;
+.fc-button-primary:not(:disabled):hover {
+  background-color: #C06637 !important;
+  border-color: #C06637 !important;
 }
 
-.appointments-sidebar {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
+.fc-v-event {
+  border-radius: 8px !important;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05) !important;
+  border: 1px solid rgba(255,255,255,0.1) !important;
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer !important;
 }
 
-.appointments-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  overflow-y: auto;
-  padding-right: 8px;
-  /* Custom scrollbar for sidebar */
-  scrollbar-width: thin;
-  scrollbar-color: #E0DDD6 transparent;
+.fc-v-event:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
 }
 
-.appointments-list::-webkit-scrollbar {
-  width: 4px;
-}
-.appointments-list::-webkit-scrollbar-track {
-  background: transparent;
-}
-.appointments-list::-webkit-scrollbar-thumb {
-  background-color: #E0DDD6;
-  border-radius: 4px;
+.fc-v-event .fc-event-main {
+  color: #FFFFFF;
+  font-weight: 500;
+  padding: 6px 8px;
+  border-radius: 8px;
 }
 
-.appointment-card {
-  background: #FFFFFF;
-  border-radius: 12px;
-  padding: 16px;
-  display: flex;
-  gap: 16px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-  transition: transform 0.2s;
-  cursor: pointer;
-  border: 1px solid transparent;
+.fc-theme-standard td, .fc-theme-standard th, .fc-theme-standard .fc-scrollgrid {
+  border-color: #E8E2D9 !important;
 }
 
-.appointment-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-  border-color: #E8E2D9;
+/* Override default yellow highlights on weekends or today */
+.fc-day-today {
+  background-color: rgba(217, 119, 69, 0.04) !important;
+}
+.fc-day-sat, .fc-day-sun {
+  background-color: transparent !important;
 }
 
-.appointment-time {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-width: 60px;
-  padding-right: 16px;
-  border-right: 1px solid #F1EDE7;
-}
-
-.appointment-time .time {
-  font-weight: 600;
-  color: var(--color-text);
-  font-size: 14px;
-}
-
-.appointment-time .date {
-  color: #7C6E65;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.appointment-info {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.appointment-info strong {
-  color: #1A1411;
-  font-size: 14px;
-  margin-bottom: 2px;
-}
-
-.appointment-info .service {
-  color: #7C6E65;
+.fc .fc-timegrid-slot-label-cushion {
   font-size: 13px;
-}
-
-@media (max-width: 1100px) {
-  .dashboard-grid {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto auto;
-  }
-}
-
-@media (max-width: 768px) {
-  .dashboard {
-    padding: 24px 16px 0 16px;
-  }
-  
-  .dashboard-grid {
-    gap: 16px;
-    padding-bottom: 24px;
-  }
-  
-  .calendar-wrapper {
-    padding: 12px;
-    height: 60vh;
-  }
-  
-  /* Mobile CSS overrides for calendar readability */
-  .fc .fc-col-header-cell-cushion {
-    font-size: 12px;
-    padding: 4px 2px;
-  }
-  
-  .fc .fc-event-time {
-    display: none !important;
-  }
-
-  /* Prevent overflow in month view events */
-  .fc-daygrid-event {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    display: block; /* ensure block layout for text-overflow to work */
-  }
-
-  .fc .fc-event-title {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  
-  .calendar-container {
-    border-radius: 12px;
-  }
-
-  .page-title {
-    font-size: 24px;
-  }
-  
-  .appointments-sidebar h2 {
-    font-size: 20px !important;
-  }
-}
-
-@media (max-width: 480px) {
-  .fc-toolbar-title {
-    font-size: 16px !important;
-  }
-  .fc .fc-button {
-    padding: 4px 8px;
-    font-size: 12px;
-  }
+  color: var(--color-text-muted);
 }
