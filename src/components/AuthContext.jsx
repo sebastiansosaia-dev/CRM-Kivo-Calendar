@@ -39,6 +39,7 @@ export const AuthProvider = ({ children }) => {
       fetchRole(user.id);
     } else {
       setRole(null);
+      // If user is explicitly set to null, loading can safely resolve inside the listener.
     }
 
     return () => {
@@ -48,6 +49,7 @@ export const AuthProvider = ({ children }) => {
 
   // 2. Dedicated Auth State Lifecycle
   useEffect(() => {
+    // Setup initial fallback
     const mountTimeout = setTimeout(() => {
       setLoading(false);
     }, 4000);
@@ -58,6 +60,7 @@ export const AuthProvider = ({ children }) => {
       if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN') {
         if (session?.user) {
           setUser(session.user);
+          // Note: setLoading(false) is now strictly handled by the user useEffect!
         } else {
           setLoading(false);
         }

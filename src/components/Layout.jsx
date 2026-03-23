@@ -36,9 +36,11 @@ const Layout = () => {
 
   useEffect(() => {
     if (role === 'jefe' && 'Notification' in window) {
+      // Request permission with error boundary
       if (Notification.permission === 'default') {
         Notification.requestPermission().catch((e) => console.warn('Notification permission error:', e));
       }
+      // Register Service Worker for background notifications
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/sw.js').catch((e) => console.warn('SW registration failed:', e));
       }
@@ -57,6 +59,7 @@ const Layout = () => {
     navigate('/login');
   };
 
+  // Global Pending Count Listener driving Web Notifications
   useEffect(() => {
     if (role !== 'jefe') return;
 
@@ -77,6 +80,7 @@ const Layout = () => {
         schema: 'public',
         table: 'citas'
       }, (payload) => {
+        // Check client-side: catches all inserts regardless of how the row was created
         if (payload.new?.status !== 'pendiente') return;
         setPendingCount(prev => {
           playNotificationSound();
@@ -94,7 +98,7 @@ const Layout = () => {
         schema: 'public',
         table: 'citas'
       }, () => {
-        fetchCount();
+        fetchCount(); // Refetch on any status change (e.g. pending -> confirmada)
       })
       .on('postgres_changes', {
         event: 'DELETE',
@@ -105,6 +109,7 @@ const Layout = () => {
       })
       .subscribe();
 
+    // Re-sync badge when tab regains focus
     const handleVisibility = () => {
       if (document.visibilityState === 'visible') fetchCount();
     };
@@ -116,11 +121,13 @@ const Layout = () => {
     };
   }, [role]);
 
+  // Unread Notas Badges Listener
   useEffect(() => {
     const fetchUnread = async () => {
       const lastVisit = localStorage.getItem('last_notas_visit');
       let query = supabase.from('notas').select('*', { count: 'exact', head: true });
       if (lastVisit) query = query.gt('created_at', lastVisit);
+      
       const { count, error } = await query;
       if (!error) setUnreadNotasCount(count || 0);
     };
@@ -139,6 +146,7 @@ const Layout = () => {
     return () => supabase.removeChannel(channel);
   }, []);
 
+  // Document Title Badge Map
   useEffect(() => {
     if (pendingCount > 0) {
       document.title = `(${pendingCount}) KIVO Calendar`;
@@ -168,14 +176,16 @@ const Layout = () => {
            location.pathname.startsWith('/notas') ? 'Notas del Equipo' :
            location.pathname.startsWith('/canceled') ? 'Canceladas & Rechazadas' : 'KIVO'}
         </span>
-        <div style={{ width: '40px' }}></div>
+        <div style={{ width: '40px' }}></div> {/* Spacer balancing flex layout */}
       </div>
 
+      {/* Mobile Dark Overlay */}
       <div 
         className={`mobile-overlay ${mobileMenuOpen ? 'open' : ''}`} 
         onClick={() => setMobileMenuOpen(false)}
       ></div>
 
+      {/* Sidebar */}
       <aside className={`sidebar ${mobileMenuOpen ? 'open' : ''}`}>
         <div className="sidebar-header">
           <NavLink to="/" onClick={() => setMobileMenuOpen(false)}>
@@ -187,6 +197,7 @@ const Layout = () => {
             <div style={{ padding: '12px 20px', color: 'rgba(255,255,255,0.4)', fontSize: '13px' }}>Cargando...</div>
           ) : (
             <>
+              {/* 1. Dashboard */}
               <NavLink 
                 to="/" 
                 className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
@@ -202,6 +213,7 @@ const Layout = () => {
                 <span className="nav-label">Dashboard</span>
               </NavLink>
 
+              {/* 2. Notificaciones (jefe only) */}
               {role === 'jefe' && (
                 <NavLink 
                   to="/notificaciones" 
@@ -232,6 +244,7 @@ const Layout = () => {
                 </NavLink>
               )}
 
+              {/* 3. Analytics */}
               <NavLink 
                 to="/analytics" 
                 className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
@@ -245,6 +258,7 @@ const Layout = () => {
                 <span className="nav-label">Analytics</span>
               </NavLink>
 
+              {/* 4. Notas */}
               <NavLink 
                 to="/notas" 
                 className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
@@ -261,6 +275,7 @@ const Layout = () => {
                 )}
               </NavLink>
 
+              {/* 5. Canceladas (jefe only) */}
               {role === 'jefe' && (
                 <NavLink 
                   to="/canceled" 
@@ -288,6 +303,7 @@ const Layout = () => {
         </div>
       </aside>
 
+      {/* Main Content Area */}
       <div className="main-area">
         <main className="content">
           <Outlet context={{ decrementPending: () => setPendingCount((prev) => Math.max(0, prev - 1)) }} />
