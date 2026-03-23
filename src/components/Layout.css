@@ -32,8 +32,8 @@
 .sidebar-header {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  padding: 24px 0 32px 10px;
+  justify-content: center;
+  padding: 24px 0 32px 0;
   box-sizing: border-box;
   width: 100%;
 }
@@ -205,8 +205,8 @@
   }
 
   .sidebar-header {
-    justify-content: flex-start;
-    padding: 24px 0 32px 10px;
+    justify-content: center;
+    padding: 24px 0 32px 0;
     height: auto;
   }
 
