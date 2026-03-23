@@ -20,9 +20,6 @@
   .dashboard-page {
     flex-direction: column;
     overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    height: auto;
-    min-height: 100%;
   }
   .upcoming-events-sidebar {
     width: 100%;
@@ -35,10 +32,8 @@
     gap: 8px !important;
   }
   .calendar-container {
-    min-height: 420px !important;
-    height: auto !important;
-    flex-shrink: 0 !important;
-    overflow: visible !important;
+    min-height: 400px !important;
+    height: 100% !important;
     padding: 12px !important;
   }
   
