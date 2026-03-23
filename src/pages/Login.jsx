@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import './Auth.css';
 
@@ -23,10 +23,10 @@ const Login = () => {
 
     if (error) {
       setError(error.message);
+      setLoading(false);
     } else {
       navigate('/');
     }
-    setLoading(false);
   };
 
   return (
@@ -39,8 +39,10 @@ const Login = () => {
 
         <form onSubmit={handleLogin} className="auth-form">
           <div className="form-group">
-            <label>Email</label>
+            <label htmlFor="login-email">Email</label>
             <input 
+              id="login-email"
+              name="email"
               type="email" 
               required
               value={email}
@@ -49,14 +51,16 @@ const Login = () => {
             />
           </div>
           <div className="form-group">
-            <label>Contraseña</label>
+            <label htmlFor="login-password">Contraseña</label>
             <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
               <input 
+                id="login-password"
+                name="password"
                 type={showPassword ? "text" : "password"} 
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Ingresa tu contraseña"
+                placeholder="••••••••"
                 style={{ width: '100%', paddingRight: '40px', boxSizing: 'border-box' }}
               />
               <button 
@@ -74,7 +78,7 @@ const Login = () => {
           </div>
 
           <button type="submit" disabled={loading} className="auth-button">
-            {loading ? 'Iniciando...' : 'Iniciar Sesión'}
+            {loading ? 'Entrando...' : 'Entrar'}
           </button>
         </form>
 
