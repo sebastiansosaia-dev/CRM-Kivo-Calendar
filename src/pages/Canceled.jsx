@@ -1,133 +1,115 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import './Pipeline.css';
+import DetailModal from '../components/DetailModal';
+import '../pages/Pipeline.css';
+
+const formatDisplay = (date) => {
+  const dt = new Date(date);
+  const options = { timeZone: 'America/Tegucigalpa' };
+  const formatter = new Intl.DateTimeFormat('es-HN', {
+    ...options, weekday: 'long', day: 'numeric', month: 'long',
+    hour: 'numeric', minute: '2-digit', hour12: true
+  });
+  return formatter.format(dt).toString() + ' (UTC-6)';
+};
 
 const Canceled = () => {
-  const [citasCanceled, setCitasCanceled] = useState([]);
+  const [citas, setCitas] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedCita, setSelectedCita] = useState(null);
 
-  useEffect(() => {
-    let active = true;
-    
-    const fetchCitas = async () => {
-      setLoading(true);
+  const fetchCitas = async () => {
+    try {
       const { data, error } = await supabase
         .from('citas')
         .select('*')
-        .or('status.eq.cancelada,status.eq.denegada')
-        .order('updated_at', { ascending: false });
-        
-      if (!error && active) {
-        setCitasCanceled(data || []);
-      }
-      if (active) setLoading(false);
-    };
+        .in('status', ['cancelada', 'denegada'])
+        .order('fecha_inicio', { ascending: false });
 
+      if (error) throw error;
+      if (data) setCitas(data);
+    } catch (error) {
+      console.error('Error fetching canceled citas:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchCitas();
 
     const channel = supabase
-      .channel('canceled-citas')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'citas' },
-        (payload) => {
-          if (!active) return;
-          const { eventType, new: newRec, old: oldRec } = payload;
-          
-          setCitasCanceled(prev => {
-            if (eventType === 'INSERT' && (newRec.status === 'cancelada' || newRec.status === 'denegada')) {
-              return [newRec, ...prev];
-            } else if (eventType === 'UPDATE') {
-              if (newRec.status !== 'cancelada' && newRec.status !== 'denegada') {
-                return prev.filter(c => c.id !== newRec.id);
-              }
-              const exists = prev.find(c => c.id === newRec.id);
-              if (exists) {
-                return prev.map(c => c.id === newRec.id ? newRec : c);
-              }
-              return [newRec, ...prev].sort((a,b) => new Date(b.updated_at) - new Date(a.updated_at));
-            } else if (eventType === 'DELETE') {
-              return prev.filter(c => c.id !== oldRec.id);
-            }
-            return prev;
-          });
-        }
-      )
+      .channel('citas-changes-canceled')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'citas'
+      }, () => {
+        fetchCitas();
+      })
       .subscribe();
 
-    return () => {
-      active = false;
-      supabase.removeChannel(channel);
-    };
+    return () => supabase.removeChannel(channel);
   }, []);
-
-  const formatDisplay = (date) => {
-    if (!date) return '';
-    const dt = new Date(date);
-    const formatter = new Intl.DateTimeFormat('es-HN', {
-      timeZone: 'America/Tegucigalpa',
-      weekday: 'short',
-      day: 'numeric',
-      month: 'short',
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
-    });
-    return formatter.format(dt);
-  };
 
   return (
     <div className="pipeline-page">
       <div className="pipeline-header">
-        <h2>Canceladas & Rechazadas</h2>
-        <span className="count-badge" style={{ backgroundColor: '#E53935' }}>{citasCanceled.length}</span>
+        <h2 className="hide-mobile">Canceladas & Rechazadas</h2>
+        <span className="count-badge" style={{ background: 'rgba(198, 93, 93, 0.12)', color: '#C65D5D' }}>{citas.length}</span>
       </div>
-
+      
       <div className="pipeline-container">
-        {loading ? (
-          <>
-            <div className="kanban-card skeleton-card skeleton-shimmer"></div>
-            <div className="kanban-card skeleton-card skeleton-shimmer"></div>
-            <div className="kanban-card skeleton-card skeleton-shimmer"></div>
-          </>
-        ) : citasCanceled.length === 0 ? (
-          <div className="pipeline-empty-state">
-             <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#E8E2D9" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg>
-            <h3>Historial Limpio</h3>
-            <p>No hay citas canceladas o denegadas recientes.</p>
-          </div>
+        {loading && citas.length === 0 ? (
+          <div className="pipeline-empty">Cargando...</div>
+        ) : citas.length === 0 ? (
+          <div className="pipeline-empty">No hay citas canceladas recientemente.</div>
         ) : (
-          citasCanceled.map(cita => (
-            <div 
-              key={cita.id} 
-              className="kanban-card"
-              style={{ borderLeftColor: '#E53935' }}
-            >
-              <div className="card-header">
-                <h3 className="client-name">{cita.cliente_nombre}</h3>
-                <div className="status-indicator" style={{ backgroundColor: '#E53935' }}></div>
-              </div>
-              
-              <div className="card-details">
-                <div className="detail-row">
-                  <span className="detail-label">Fecha original:</span>
-                  <span className="capitalize">{formatDisplay(cita.fecha_inicio)}</span>
+          citas.map(cita => (
+            <div key={cita.id} className="kanban-card pattern-denied">
+              <div className="card-click-area" onClick={() => setSelectedCita(cita)}>
+                <div className="card-header">
+                  <h3 className="client-name" style={{ opacity: 0.8 }}>{cita.cliente_nombre}</h3>
+                  <span className="status-indicator" style={{ background: '#C65D5D' }}></span>
                 </div>
-                <div className="detail-row">
-                  <span className="detail-label">Estado:</span>
-                  <span className="capitalize" style={{ color: '#E53935', fontWeight: 500 }}>{cita.status}</span>
-                </div>
-                <div className="detail-row reason" style={{ marginTop: '4px' }}>
-                  <span className="detail-label">Razón ({formatDisplay(cita.updated_at)}):</span>
-                  <p style={{ background: '#F9F7F4', padding: '8px', borderRadius: '6px', fontSize: '13px' }}>
-                    {cita.motivo_cancelacion || 'Ningún motivo registrado.'}
-                  </p>
+                
+                <div className="card-details" style={{ opacity: 0.75 }}>
+                  <div className="detail-row">
+                    <span className="detail-label">Contacto:</span>
+                    <span>{cita.cliente_contacto}</span>
+                  </div>
+                  <div className="detail-row">
+                    <span className="detail-label">Fecha:</span>
+                    <span className="capitalize">{formatDisplay(cita.fecha_inicio)}</span>
+                  </div>
+                  {cita.motivo && (
+                    <div className="detail-row reason">
+                      <span className="detail-label">Motivo:</span>
+                      <p>{cita.motivo}</p>
+                    </div>
+                  )}
+                  <div className="detail-row">
+                    <span className="detail-label">Estado final:</span>
+                    <strong style={{ color: '#C65D5D' }}>{cita.status.toUpperCase()}</strong>
+                  </div>
                 </div>
               </div>
             </div>
           ))
         )}
       </div>
+      
+      <DetailModal 
+        isOpen={!!selectedCita} 
+        cita={selectedCita} 
+        onClose={() => setSelectedCita(null)} 
+        // We pass empty handlers ensuring no mutate buttons render against canceled states
+        onAccept={() => {}}
+        onDeny={() => {}}
+        actionLoading={null}
+        buttonState="hidden"
+        onRescheduleSuccess={fetchCitas}
+      />
     </div>
   );
 };
