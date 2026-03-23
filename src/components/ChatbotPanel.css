@@ -1,0 +1,205 @@
+.chatbot-fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: var(--color-primary);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  z-index: 9999;
+  transition: transform 0.2s, background-color 0.2s;
+}
+
+.chatbot-fab:hover {
+  transform: scale(1.05);
+  background-color: #C06637;
+}
+
+.chatbot-fab svg {
+  width: 24px;
+  height: 24px;
+}
+
+.chatbot-popup {
+  position: fixed;
+  bottom: 84px;
+  right: 24px;
+  width: 320px;
+  height: 420px;
+  max-height: calc(100vh - 100px);
+  background-color: #FFFFFF;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 9998;
+  border: 1px solid #E8E2D9;
+  transform: translateY(20px) scale(0.95);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.25s;
+}
+
+.chatbot-popup.visible {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.chatbot-header {
+  background-color: #FFFFFF;
+  color: var(--color-primary);
+  padding: 12px 16px;
+  border-bottom: 1px solid #E8E2D9;
+  flex-shrink: 0;
+}
+
+.chatbot-header h3 {
+  margin: 0;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: #161B21;
+}
+
+.chatbot-messages {
+  flex-grow: 1;
+  padding: 16px;
+  overflow-y: auto;
+  background-color: #F9F7F4;
+  display: flex;
+  flex-direction: column;
+}
+
+.chatbot-welcome {
+  text-align: center;
+  color: #7C6E65;
+  font-size: 13px;
+  margin-top: 16px;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.chat-history {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.chat-bubble {
+  max-width: 85%;
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  line-height: 1.4;
+  word-wrap: break-word;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.chat-bubble.user {
+  align-self: flex-end;
+  background-color: var(--color-primary);
+  color: #FFFFFF;
+  border-bottom-right-radius: 4px;
+}
+
+.chat-bubble.assistant {
+  align-self: flex-start;
+  background-color: #FFFFFF;
+  color: var(--color-text);
+  border: 1px solid #E8E2D9;
+  border-bottom-left-radius: 4px;
+}
+
+.typing-indicator {
+  display: flex;
+  gap: 4px;
+  padding: 10px 14px;
+  font-size: 14px;
+  color: #7C6E65;
+}
+
+.typing-indicator span {
+  animation: typing 1.4s infinite ease-in-out both;
+}
+
+.typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+.typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes typing {
+  0%, 80%, 100% { transform: scale(0); opacity: 0.5; }
+  40% { transform: scale(1); opacity: 1; }
+}
+
+.chatbot-input-area {
+  padding: 12px;
+  background-color: #FFFFFF;
+  border-top: 1px solid #E8E2D9;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.chatbot-input-area textarea {
+  flex-grow: 1;
+  border: 1px solid #E8E2D9;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  resize: none;
+  height: 40px;
+  outline: none;
+  background-color: #FAFAFA;
+  box-sizing: border-box;
+}
+
+.chatbot-input-area textarea:focus {
+  border-color: var(--color-primary);
+  background-color: #FFFFFF;
+}
+
+.chatbot-send-btn {
+  background-color: var(--color-primary);
+  color: #FFFFFF;
+  border-radius: 8px;
+  padding: 0 16px;
+  height: 40px;
+  font-weight: 600;
+  font-size: 13px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.chatbot-send-btn:hover:not(:disabled) {
+  background-color: #C06637;
+}
+
+.chatbot-send-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: var(--color-primary);
+}
+
+.chatbot-status {
+  display: none;
+}
+
+@media (max-width: 480px) {
+  .chatbot-popup {
+    width: calc(100vw - 32px);
+    right: 16px;
+    bottom: 84px;
+  }
+}
