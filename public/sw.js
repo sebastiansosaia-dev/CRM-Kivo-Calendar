@@ -1,49 +1,53 @@
+// KIVO Calendar Service Worker
+// Handles push notifications when app is in background
+
 self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
-  event.waitUntil(self.clients.claim());
+  event.waitUntil(clients.claim());
 });
 
 self.addEventListener('push', (event) => {
-  let payload = { title: 'Notificación de KIVO', body: 'Tienes actualizaciones pendientes.' };
+  const data = event.data ? event.data.json() : {};
   
-  if (event.data) {
-    try {
-      payload = event.data.json();
-    } catch (e) {
-      payload.body = event.data.text();
-    }
-  }
-
   const options = {
-    body: payload.body,
+    body: data.body || 'Tienes una nueva notificación en KIVO.',
     icon: '/umbrella_no_bg_clean.png',
-    badge: '/favicon.svg',
-    vibrate: [200, 100, 200],
-    data: payload.url || '/'
+    badge: '/umbrella_no_bg_clean.png',
+    vibrate: [100, 50, 100],
+    data: {
+      url: data.url || '/',
+    },
+    actions: [
+      { action: 'open', title: 'Ver' },
+      { action: 'close', title: 'Cerrar' },
+    ],
   };
 
   event.waitUntil(
-    self.registration.showNotification(payload.title, options)
+    self.registration.showNotification(
+      data.title || 'KIVO Calendar',
+      options
+    )
   );
 });
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  const targetUrl = event.notification.data || '/';
-  
+
+  if (event.action === 'close') return;
+
   event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
-      for (let i = 0; i < windowClients.length; i++) {
-        const client = windowClients[i];
-        if (client.url === targetUrl && 'focus' in client) {
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+      for (const client of clientList) {
+        if (client.url.includes(self.location.origin) && 'focus' in client) {
           return client.focus();
         }
       }
       if (clients.openWindow) {
-        return clients.openWindow(targetUrl);
+        return clients.openWindow(event.notification.data.url || '/');
       }
     })
   );

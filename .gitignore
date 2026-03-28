@@ -14,11 +14,6 @@ dist-ssr
 .env
 .env.local
 
-# Dev/debug scripts
-insert_mock.js
-insert_mock2.mjs
-supabase_notas.sql
-
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

@@ -1,71 +1,16 @@
-# KIVO Calendar CRM
+# React + Vite
 
-A production-ready React CRM for managing appointments (citas), built with Vite, Supabase Realtime, FullCalendar, and n8n webhook integrations.
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-## Features
+Currently, two official plugins are available:
 
-- 📅 **Full Calendar** — week/day/month views with responsive mobile layout
-- 🔔 **Realtime Notifications** — live badge counts via Supabase `postgres_changes`
-- ✅ **Accept / Deny / Reschedule** — webhook-driven flows with mandatory deny reasons
-- 📊 **Analytics Dashboard** — monthly trends, status distribution donut chart, top clients
-- 💬 **KIVO Assistant** — AI chatbot widget connected to n8n
-- 📝 **Team Notes** — realtime collaborative message board
-- 🔐 **Role-based Auth** — `jefe` and `empleado` roles via Supabase Auth + profiles table
-- 🔔 **Push Notifications** — Service Worker for background browser notifications
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
-## Tech Stack
+## React Compiler
 
-| Layer | Technology |
-|---|---|
-| Frontend | React 19 + Vite 8 |
-| Routing | react-router-dom v7 |
-| Database / Auth / Realtime | Supabase |
-| Calendar | FullCalendar v6 |
-| Webhooks | n8n |
-| Deployment | Vercel |
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-## Getting Started
+## Expanding the ESLint configuration
 
-```bash
-# 1. Clone the repository
-git clone https://github.com/sebastiansosaia-dev/CRM-Kivo-Calendar.git
-cd CRM-Kivo-Calendar
-
-# 2. Install dependencies
-npm install
-
-# 3. Configure environment variables
-cp .env.example .env.local
-# Edit .env.local and add your Supabase URL and Anon Key
-
-# 4. Start the dev server
-npm run dev
-```
-
-## Deployment on Vercel
-
-1. Import the repository on [Vercel](https://vercel.com)
-2. Set the environment variables `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in the Vercel project settings
-3. Vercel will auto-detect the Vite framework and build with `npm run build`
-
-The `vercel.json` rewrite rule ensures all routes are handled by `index.html` for client-side routing.
-
-## Environment Variables
-
-| Variable | Description |
-|---|---|
-| `VITE_SUPABASE_URL` | Your Supabase project URL |
-| `VITE_SUPABASE_ANON_KEY` | Your Supabase anonymous public key |
-
-## Project Structure
-
-```
-src/
-  components/     # Shared UI components (Layout, DetailModal, ChatbotPanel, Toast...)
-  pages/          # Route-level pages (Dashboard, Notificaciones, Analytics...)
-  lib/
-    supabase.js   # Supabase client initialization
-public/
-  sw.js           # Service Worker for push notifications
-  umbrella_no_bg_clean.png  # KIVO logo
-```
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
