@@ -1,149 +1,141 @@
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
-import { useAuth } from '../components/AuthContext';
-import './Pipeline.css';
+import './Pipeline.css'; // Base styles
 
 const Notas = () => {
-  const { user } = useAuth();
-  const [notas, setNotas] = useState([]);
-  const [mensaje, setMensaje] = useState('');
+  const [messages, setMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
-  const messagesEndRef = useRef(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const scrollRef = useRef(null);
 
-  const fetchNotas = async () => {
+  const fetchMessages = async () => {
     try {
       const { data, error } = await supabase
         .from('notas')
         .select('*')
-        .order('created_at', { ascending: true }); // bottom-to-top execution
-
+        .order('created_at', { ascending: true });
+      
       if (error) throw error;
-      if (data) setNotas(data);
-    } catch (error) {
-      console.error('Error fetching notas:', error);
+      setMessages(data || []);
+      
+      // Mark as read when viewing
+      const unreadIds = (data || []).filter(m => !m.is_read).map(m => m.id);
+      if (unreadIds.length > 0) {
+        await supabase.from('notas').update({ is_read: true }).in('id', unreadIds);
+      }
+    } catch (err) {
+      console.error('Error fetching messages:', err);
     } finally {
       setLoading(false);
-      localStorage.setItem('last_notas_visit', new Date().toISOString());
     }
   };
 
   useEffect(() => {
-    fetchNotas();
-
-    const channel = supabase
-      .channel('notas-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'notas' }, (payload) => {
-        fetchNotas();
-      })
+    fetchMessages();
+    const channel = supabase.channel('notas-realtime')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notas' }, fetchMessages)
       .subscribe();
-
     return () => supabase.removeChannel(channel);
   }, []);
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [notas]);
-  
-  // Track last visit upon Unmounting implicitly keeping unread tracking accurate globally
-  useEffect(() => {
-    return () => {
-      localStorage.setItem('last_notas_visit', new Date().toISOString());
-    };
-  }, []);
-
-  const getDisplayName = (email) => {
-    if (!email) return 'Usuario';
-    const name = email.split('@')[0];
-    return name.charAt(0).toUpperCase() + name.slice(1);
-  };
-
-  const handleSend = async (e) => {
+  const handleSendMessage = async (e) => {
     e.preventDefault();
-    if (!mensaje.trim() || !user?.email) return;
+    if (!newMessage.trim() || isSubmitting) return;
 
+    setIsSubmitting(true);
     try {
       const { error } = await supabase
         .from('notas')
-        .insert([{ mensaje: mensaje.trim(), usuario_email: user.email }]);
-        
+        .insert([{ content: newMessage, is_read: false }]);
       if (error) throw error;
-      setMensaje('');
-    } catch (error) {
-      console.error('Error sending mensaje:', error);
+      setNewMessage('');
+      fetchMessages();
+    } catch (err) {
+      console.error('Error sending message:', err);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const formatTime = (ts) => {
-    const d = new Date(ts);
-    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  };
-
   return (
-    <div className="pipeline-page" style={{ height: '100%', display: 'flex', flexDirection: 'column', paddingBottom: 0, overflow: 'hidden' }}>
-      <div className="pipeline-header hide-mobile">
+    <div className="pipeline-page" style={{ position: 'relative', display: 'flex', flexDirection: column, height: 'auto' }}>
+      <div className="pipeline-header">
         <h2>Notas del Equipo</h2>
+        <p>Conversación interna y recordatorios generales.</p>
       </div>
-      
-      <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', padding: '0 12px 0 12px' }}>
-        <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', WebkitOverflowScrolling: 'touch', backgroundColor: '#FFFFFF', borderRadius: '12px', padding: '16px', display: 'flex', flexDirection: 'column' }}>
-          {loading ? (
-             <div className="pipeline-empty">Cargando notas...</div>
-          ) : notas.length === 0 ? (
-             <div className="pipeline-empty">No hay notas en el sistema.</div>
-          ) : (
-            <div style={{ flexGrow: 1, display: 'flex', flexDirection: 'column', gap: '12px', overflowY: 'auto' }}>
-              {notas.map((n) => {
-                const isMine = n.usuario_email === user?.email;
-                return (
-                  <div key={n.id} style={{ alignSelf: isMine ? 'flex-end' : 'flex-start', maxWidth: '80%' }}>
-                     <div style={{ fontSize: '11px', fontWeight: '600', color: isMine ? '#C2622A' : '#7C6E65', marginBottom: '4px', paddingLeft: isMine ? 0 : '4px', paddingRight: isMine ? '4px' : 0, textAlign: isMine ? 'right' : 'left', letterSpacing: '0.3px' }}>
-                       {isMine ? 'Tú' : getDisplayName(n.usuario_email)}
-                     </div>
-                     <div style={{ 
-                        padding: '10px 14px', 
-                        borderRadius: '14px', 
-                        backgroundColor: isMine ? '#D97745' : '#F5F0EA',
-                        color: isMine ? '#FFFFFF' : '#1A1411',
-                        borderBottomRightRadius: isMine ? '4px' : '14px',
-                        borderBottomLeftRadius: !isMine ? '4px' : '14px',
-                        boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
-                     }}>
-                       <p style={{ margin: 0, fontSize: '13px', lineHeight: '1.5' }}>{n.mensaje}</p>
-                     </div>
-                     <div style={{ fontSize: '10px', color: '#A09891', marginTop: '3px', textAlign: isMine ? 'right' : 'left' }}>
-                       {formatTime(n.created_at)}
-                     </div>
-                  </div>
-                );
-              })}
-              <div ref={messagesEndRef} />
-            </div>
-          )}
-        </div>
 
-        <div style={{ padding: '12px 0', flexShrink: 0 }}>
-          <form onSubmit={handleSend} style={{ display: 'flex', gap: '8px' }}>
-            <input 
-              type="text" 
-              value={mensaje}
-              onChange={(e) => setMensaje(e.target.value)}
-              placeholder="Escribe una nota para el equipo..."
-              style={{ 
-                flexGrow: 1, 
-                padding: '10px 14px', 
-                borderRadius: '8px', 
-                border: '1px solid #E8E2D9',
-                outline: 'none',
-                fontFamily: '"DM Sans", sans-serif',
-                fontSize: '13px'
-              }}
-            />
-            <button type="submit" disabled={!mensaje.trim() || !user} className="btn btn-primary" style={{ padding: '0 16px', borderRadius: '8px', fontSize: '13px' }}>
-              Enviar
-            </button>
-          </form>
-        </div>
+      <div className="chat-container" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 16, paddingBottom: 100 }}>
+        {loading ? (
+          <p>Cargando mensajes...</p>
+        ) : messages.length === 0 ? (
+          <p style={{ color: '#A09891', textAlign: 'center', marginTop: 40 }}>No hay notas compartidas aún.</p>
+        ) : (
+          messages.map(msg => (
+            <div 
+              key={msg.id} 
+              className="chat-bubble-row" 
+              style={{ display: 'flex', flexDirection: 'column', alignSelf: 'flex-start', maxWidth: '80%' }}
+            >
+              <div 
+                className="chat-bubble" 
+                style={{ 
+                  background: 'white', 
+                  padding: '12px 16px', 
+                  borderRadius: '12px 12px 12px 4px', 
+                  boxShadow: 'var(--shadow)',
+                  fontSize: '14px'
+                }}
+              >
+                {msg.content}
+              </div>
+              <span style={{ fontSize: '10px', color: '#A09891', marginTop: 4, marginLeft: 4 }}>
+                {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </span>
+            </div>
+          ))
+        )}
       </div>
+
+      {/* STICKY INPUT AT THE BOTTOM OF THE PAGE VIEW */}
+      <form 
+        onSubmit={handleSendMessage} 
+        style={{ 
+          position: 'sticky', 
+          bottom: 20, 
+          left: 0, 
+          right: 0, 
+          background: 'white', 
+          padding: '16px', 
+          borderRadius: '12px', 
+          display: 'flex', 
+          gap: 12, 
+          boxShadow: '0 -4px 20px rgba(0,0,0,0.05)',
+          marginTop: 'auto',
+          zIndex: 5
+        }}
+      >
+        <input 
+          type="text" 
+          placeholder="Escribe una nota..." 
+          value={newMessage}
+          onChange={(e) => setNewMessage(e.target.value)}
+          style={{ 
+            flex: 1, 
+            border: '1px solid #E8E2D9', 
+            borderRadius: '8px', 
+            padding: '10px 16px',
+            outline: 'none'
+          }}
+        />
+        <button 
+          type="submit" 
+          disabled={!newMessage.trim() || isSubmitting}
+          className="btn btn-primary"
+        >
+          {isSubmitting ? '...' : 'Enviar'}
+        </button>
+      </form>
     </div>
   );
 };
