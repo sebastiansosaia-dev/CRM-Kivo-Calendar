@@ -5,89 +5,31 @@ const AuthContext = createContext({});
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [role, setRole] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // 1. Independent Role Fetcher Lifecycle
   useEffect(() => {
-    let active = true;
-
-    const fetchRole = async (userId) => {
-      // Start safety timer exactly when fetching begins
-      const fetchTimeout = setTimeout(() => {
-        if (active) setLoading(false);
-      }, 4000);
-
-      try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', userId)
-          .single();
-          
-        if (error) throw error;
-        if (active) setRole(data.role);
-      } catch (err) {
-        console.error('Role fetch error:', err);
-      } finally {
-        clearTimeout(fetchTimeout);
-        if (active) setLoading(false);
-      }
-    };
-
-    if (user) {
-      fetchRole(user.id);
-    } else {
-      setRole(null);
-      // If user is explicitly set to null, loading can safely resolve inside the listener.
-    }
-
-    return () => {
-      active = false;
-    };
-  }, [user]);
-
-  // 2. Dedicated Auth State Lifecycle
-  useEffect(() => {
-    // Setup initial fallback
-    const mountTimeout = setTimeout(() => {
+    // Check active sessions and sets the user
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
       setLoading(false);
-    }, 4000);
-
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      clearTimeout(mountTimeout); 
-
-      if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN') {
-        if (session?.user) {
-          setUser(session.user);
-          // Note: setLoading(false) is now strictly handled by the user useEffect!
-        } else {
-          setLoading(false);
-        }
-      } else if (event === 'SIGNED_OUT') {
-        setUser(null);
-        setRole(null);
-        setLoading(false);
-      }
     });
 
-    return () => {
-      authListener.subscription.unsubscribe();
-      clearTimeout(mountTimeout);
-    };
+    // Listen for changes on auth state (logged in, signed out, etc.)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  const logout = async () => {
-    setUser(null);
-    setRole(null);
-    await supabase.auth.signOut();
-  };
-
   return (
-    <AuthContext.Provider value={{ user, role, loading, logout }}>
-      {children}
+    <AuthContext.Provider value={{ user, loading }}>
+      {!loading && children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+  return useContext(AuthContext);
+};

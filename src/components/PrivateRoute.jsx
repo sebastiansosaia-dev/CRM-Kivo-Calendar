@@ -8,8 +8,9 @@ const PrivateRoute = () => {
 
   if (loading) {
     return (
-      <div className="private-route-loader">
+      <div className="loading-screen">
         <div className="spinner"></div>
+        <p>Iniciando KIVO...</p>
       </div>
     );
   }

@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { supabase } from '../lib/supabase';
 import './ChatbotPanel.css';
 
 const ChatbotPanel = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [input, setInput] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [messages, setMessages] = useState([]);
+  const [message, setMessage] = useState('');
+  const [chatHistory, setChatHistory] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -13,96 +14,88 @@ const ChatbotPanel = () => {
   };
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages, loading]);
+    if (isOpen) scrollToBottom();
+  }, [chatHistory, isOpen]);
 
-  const handleSend = async () => {
-    if (!input.trim() || loading) return;
+  const handleSendMessage = async (e) => {
+    e.preventDefault();
+    if (!message.trim() || isLoading) return;
 
-    const userMessage = { role: 'user', content: input.trim() };
-    setMessages((prev) => [...prev, userMessage]);
-    setInput('');
-    setLoading(true);
-    
+    const userMessage = { role: 'user', content: message };
+    setChatHistory(prev => [...prev, userMessage]);
+    setMessage('');
+    setIsLoading(true);
+
     try {
-      const response = await fetch('https://n8n.srv1306518.hstgr.cloud/webhook/kivo-assistant', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: userMessage.content })
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        setMessages((prev) => [...prev, { role: 'assistant', content: data.response || 'Message received.' }]);
-      } else {
-        setMessages((prev) => [...prev, { role: 'assistant', content: 'Connection error - invalid response.' }]);
-      }
+      // Simulate backend response - In a real app this would call n8n or OpenAI
+      setTimeout(() => {
+        const botResponse = { 
+          role: 'assistant', 
+          content: `Soy tu asistente KIVO. ¿En qué puedo ayudarte con tus citas?` 
+        };
+        setChatHistory(prev => [...prev, botResponse]);
+        setIsLoading(false);
+      }, 1000);
     } catch (error) {
-      console.error('Error sending message:', error);
-      setMessages((prev) => [...prev, { role: 'assistant', content: 'Error connecting to webhook.' }]);
-    } finally {
-      setLoading(false);
+      console.error('Chat error:', error);
+      setIsLoading(false);
     }
   };
 
   return (
     <>
       <button 
-        className={`chatbot-fab ${isOpen ? 'open' : ''}`}
+        className="chatbot-fab" 
         onClick={() => setIsOpen(!isOpen)}
-        aria-label="Toggle Chatbot"
+        aria-label="Abrir asistente"
       >
-        <svg fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
-          {isOpen ? (
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-          ) : (
-            <path strokeLinecap="round" strokeLinejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-          )}
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
         </svg>
       </button>
 
       <div className={`chatbot-popup ${isOpen ? 'visible' : ''}`}>
         <div className="chatbot-header">
-          <h3>KIVO Assistant</h3>
+          <h3>Asistente KIVO</h3>
         </div>
+        
         <div className="chatbot-messages">
-          {messages.length === 0 ? (
+          {chatHistory.length === 0 && (
             <div className="chatbot-welcome">
-              How can I help you modify appointments?
-            </div>
-          ) : (
-            <div className="chat-history">
-              {messages.map((msg, index) => (
-                <div key={index} className={`chat-bubble ${msg.role}`}>
-                  {msg.content}
-                </div>
-              ))}
-              {loading && (
-                <div className="chat-bubble assistant typing-indicator">
-                  <span>.</span><span>.</span><span>.</span>
-                </div>
-              )}
-              <div ref={messagesEndRef} />
+              ¡Hola! Soy tu asistente inteligente. Pregúntame lo que necesites sobre tus citas.
             </div>
           )}
+          <div className="chat-history">
+            {chatHistory.map((msg, idx) => (
+              <div key={idx} className={`chat-bubble ${msg.role}`}>
+                {msg.content}
+              </div>
+            ))}
+            {isLoading && (
+              <div className="typing-indicator">
+                <span>.</span><span>.</span><span>.</span>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
         </div>
-        <div className="chatbot-input-area">
+
+        <form className="chatbot-input-area" onSubmit={handleSendMessage}>
           <textarea 
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Type message..."
-            disabled={loading}
+            placeholder="Pregúntame algo..."
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
-                handleSend();
+                handleSendMessage(e);
               }
             }}
           />
-          <button className="chatbot-send-btn" onClick={handleSend} disabled={loading || !input.trim()}>
-            {loading ? '...' : 'Send'}
+          <button type="submit" className="chatbot-send-btn" disabled={!message.trim()}>
+            Enviar
           </button>
-        </div>
+        </form>
       </div>
     </>
   );
